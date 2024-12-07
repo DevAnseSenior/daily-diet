@@ -4,11 +4,34 @@ import { knex } from '../database'
 import { randomUUID } from 'crypto'
 
 export async function mealsRoutes(app: FastifyInstance) {
+  app.get('/', async () => {
+    const meals = await knex('meals').select('*')
+
+    return { meals }
+  })
+
+  app.get('/:id', async (request) => {
+    const getMealParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const { id } = getMealParamsSchema.parse(request.params)
+
+    const meal = await knex('meals').where('id', id).first()
+
+    return { meal }
+  })
+
   app.post('/', async (request, reply) => {
     const createMealBodySchema = z.object({
       name: z.string(),
       description: z.string(),
-      date: z.string().transform((val) => new Date(val)),
+      date: z
+        .string()
+        .refine((date) => !isNaN(Date.parse(date)), {
+          message: 'Invalid date format. Expected ISO 8601 string.',
+        })
+        .transform((date) => new Date(date)),
       hour: z
         .string()
         .regex(
@@ -26,7 +49,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       id: randomUUID(),
       name,
       description,
-      date,
+      date: date.toISOString().split('T')[0],
       hour,
       diet,
     })
