@@ -22,6 +22,12 @@ export async function mealsRoutes(app: FastifyInstance) {
     return { meal }
   })
 
+  app.get('/metrics', async () => {
+    const metrics = await knex('meals').count('id', { as: 'Total Meals' })
+
+    return { metrics }
+  })
+
   app.post('/', async (request, reply) => {
     const createMealBodySchema = z.object({
       name: z.string(),
