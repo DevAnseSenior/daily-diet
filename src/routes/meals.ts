@@ -35,22 +35,41 @@ export async function mealsRoutes(app: FastifyInstance) {
 
       const totalMeals = await knex('meals')
         .where({ user_id: sessionId })
-        .count('id', { as: 'total' })
+        .orderBy('date', 'desc')
 
       const insideDiet = await knex('meals')
         .where({ user_id: sessionId, diet: 'yes' })
         .count('id', { as: 'total' })
+        .first()
 
       const outsideDiet = await knex('meals')
         .where({ user_id: sessionId, diet: 'no' })
         .count('id', { as: 'total' })
+        .first()
 
-      // const { bestDietSequence } = totalMeals.reduce((acc, meal) => {
-      //   if (meal.) {
-      //   }
-      // })
+      const { bestDietSequence } = totalMeals.reduce(
+        (acc, meal) => {
+          if (meal.diet === 'yes') {
+            acc.currentSequence += 1
+          } else {
+            acc.currentSequence = 0
+          }
 
-      return reply.send({ totalMeals, insideDiet, outsideDiet })
+          if (acc.currentSequence > acc.bestDietSequence) {
+            acc.bestDietSequence = acc.currentSequence
+          }
+
+          return acc
+        },
+        { bestDietSequence: 0, currentSequence: 0 },
+      )
+
+      return reply.send({
+        totalMeals: totalMeals.length,
+        insideDiet: insideDiet?.total,
+        outsideDiet: outsideDiet?.total,
+        bestDietSequence,
+      })
     },
   )
 
