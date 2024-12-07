@@ -63,6 +63,48 @@ export async function mealsRoutes(app: FastifyInstance) {
     return reply.status(200).send()
   })
 
+  app.put('/:id', async (request, reply) => {
+    const getMealParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const updateMealBodySchema = z.object({
+      name: z.string(),
+      description: z.string(),
+      date: z
+        .string()
+        .refine((date) => !isNaN(Date.parse(date)), {
+          message: 'Invalid date format. Expected ISO 8601 string.',
+        })
+        .transform((date) => new Date(date)),
+      hour: z
+        .string()
+        .regex(
+          /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/,
+          'Invalid time format. Expected HH:mm:ss.',
+        ),
+      diet: z.enum(['yes', 'no']),
+    })
+
+    const { id } = getMealParamsSchema.parse(request.params)
+
+    const { name, description, date, hour, diet } = updateMealBodySchema.parse(
+      request.body,
+    )
+
+    await knex('meals')
+      .where('id', id)
+      .update({
+        name,
+        description,
+        date: date.toISOString().split('T')[0],
+        hour,
+        diet,
+      })
+
+    return reply.status(204).send()
+  })
+
   app.delete('/:id', async (request, reply) => {
     const getMealParamsSchema = z.object({
       id: z.string().uuid(),
