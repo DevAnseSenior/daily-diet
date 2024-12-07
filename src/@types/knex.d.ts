@@ -9,6 +9,7 @@ declare module 'knex/types/tables' {
       description: string
       date: string
       hour: string
+      diet: string
       user_id?: string
     }
   }
