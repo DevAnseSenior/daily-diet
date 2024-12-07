@@ -64,6 +64,17 @@ export async function mealsRoutes(app: FastifyInstance) {
       request.body,
     )
 
+    let userId = request.cookies.sessionId
+
+    if (!userId) {
+      userId = randomUUID()
+
+      reply.cookie('sessionId', userId, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      })
+    }
+
     await knex('meals').insert({
       id: randomUUID(),
       name,
@@ -71,6 +82,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       date: date.toISOString().split('T')[0],
       hour,
       diet,
+      user_id: userId,
     })
 
     return reply.status(200).send()
