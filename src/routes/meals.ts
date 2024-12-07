@@ -22,10 +22,23 @@ export async function mealsRoutes(app: FastifyInstance) {
     return { meal }
   })
 
-  app.get('/metrics', async () => {
-    const metrics = await knex('meals').count('id', { as: 'Total Meals' })
+  app.get('/metrics', async (request, reply) => {
+    const totalMeals = await knex('meals').count('id', { as: 'total' })
 
-    return { metrics }
+    const insideDiet = await knex('meals')
+      .where({ diet: 'yes' })
+      .count('id', { as: 'total' })
+
+    const outsideDiet = await knex('meals')
+      .where({ diet: 'no' })
+      .count('id', { as: 'total' })
+
+    // const { bestDietSequence } = totalMeals.reduce((acc, meal) => {
+    //   if (meal.) {
+    //   }
+    // })
+
+    return reply.send({ totalMeals, insideDiet, outsideDiet })
   })
 
   app.post('/', async (request, reply) => {
