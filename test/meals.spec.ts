@@ -1,5 +1,5 @@
-import { afterAll, beforeAll, describe, it } from 'vitest'
 import request from 'supertest'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { app } from '../src/app'
 
 describe('Meals routes', () => {
@@ -11,16 +11,43 @@ describe('Meals routes', () => {
     await app.close()
   })
 
-  it('user must create a new meal', async () => {
+  it('user can create a new meal', async () => {
     await request(app.server)
       .post('/meals')
       .send({
         name: 'new meal',
         description: 'new meal description',
-        data: '2024-12-02',
+        date: '2024-12-02',
         hour: '09:00:23',
         diet: 'yes',
       })
       .expect(201)
+  })
+
+  it('should be able to list all meals', async () => {
+    const createMealResponse = await request(app.server).post('/meals').send({
+      name: 'new meal',
+      description: 'new meal describe',
+      date: '2024-12-03',
+      hour: '16:00:00',
+      diet: 'no',
+    })
+
+    const cookies = createMealResponse.get('Set-Cookie') ?? []
+
+    const listMealsResponse = await request(app.server)
+      .get('/meals')
+      .set('Cookie', cookies)
+      .expect(200)
+
+    expect(listMealsResponse.body.meals).toEqual([
+      expect.objectContaining({
+        name: 'new meal',
+        description: 'new meal describe',
+        date: '2024-12-03',
+        hour: '16:00:00',
+        diet: 'no',
+      }),
+    ])
   })
 })
