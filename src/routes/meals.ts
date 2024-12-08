@@ -117,7 +117,7 @@ export async function mealsRoutes(app: FastifyInstance) {
       user_id: userId,
     })
 
-    return reply.status(200).send()
+    return reply.status(201).send()
   })
 
   app.put(
