@@ -1,6 +1,7 @@
 import request from 'supertest'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '../src/app'
+import { execSync } from 'node:child_process'
 
 describe('Meals routes', () => {
   beforeAll(async () => {
@@ -9,6 +10,11 @@ describe('Meals routes', () => {
 
   afterAll(async () => {
     await app.close()
+  })
+
+  beforeEach(() => {
+    execSync('npm run knex migrate:rollback --all')
+    execSync('npm run knex migrate:latest')
   })
 
   it('user can create a new meal', async () => {
