@@ -31,14 +31,14 @@ Welcome to the **Daily Diet** application! This project enables users to track t
 - **Node.js**  
   Backend built with modern JavaScript standards.
   
+- **Fastify**  
+  Fast and low overhead web framework, for Node.js.
+  
 - **Knex.js**  
   SQL query builder used for database interaction.
 
 - **Zod**  
   Schema validation for robust request handling.
-
-- **Postman**  
-  Used for testing API endpoints during development.
 
 ---
 
@@ -46,11 +46,18 @@ Welcome to the **Daily Diet** application! This project enables users to track t
 
 ```
 📂 /src
-├── 📂 /middlewares         # Request parsing utilities
-├── 📂 /utils               # Helper functions
-├── 📄 database.js          # Database configuration and queries
-├── 📄 routes.js            # API route definitions
-└── 📄 server.js            # Server setup
+├── 📂 middlewares
+│      └── check-user-id-exists.ts    # Middleware to validate if the user ID exists in requests
+├── 📂 routes
+│      └── 📄 meals.ts                # Route definitions for meal-related endpoints
+├── 📂 env
+│      └── 📄 index.ts                # Environment variable configuration and management
+├── 📂 @types
+│      └── 📄 knex.d.ts               # Custom TypeScript definitions for Knex.js
+├── 📄 server.ts                      # Entry point to start the server
+├── 📄 database.ts                    # Database configuration and connection setup
+└── 📄 app.ts                         # Main application file; sets up middlewares and routes
+
 ```
 
 ---
